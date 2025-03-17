@@ -46,6 +46,7 @@ void loop() {
   float altitudeDiff = altitude - previousAltitude;
   float velocity = 0;
   
+  //*This section is used to find when apogee is reached by calculating the differences in altitude across time */
   // Calculate velocity if previous time is available
   if (previousTime != 0) {
     velocity = altitudeDiff / (timeDiff / 1000.0); // Velocity in meters per second
