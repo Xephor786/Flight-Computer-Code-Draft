@@ -1,3 +1,4 @@
+#include "../include/altimeter.h"
 #include <Arduino.h>
 #include <Wire.h>
 #include <SPI.h>
@@ -8,15 +9,16 @@
 #define BMP_MOSI 11
 #define BMP_CS 10
 
-#define SEALEVELPRESSURE_HPA (1013.25)
 
 Adafruit_BMP3XX bmp; 
-// put function declarations here:
 
 
 float previousAltitude = 0;
 long previousTime = 0;
 float previousVelocity = 0; // Track previous velocity
+
+// Function declaration
+void processAltitudeData(float &previousAltitude, long &previousTime, float &previousVelocity);
 
 void setup() {
   // put your setup code here, to run once:
@@ -34,57 +36,13 @@ void setup() {
       bmp.setOutputDataRate(BMP3_ODR_50_HZ);
     }
 
-
 void loop() {
-  if (! bmp.performReading()) {
-    Serial.println("Failed to perform reading :(");
-    return;
-  }
-  float altitude = bmp.readAltitude(SEALEVELPRESSURE_HPA);
-  long currentTime = millis();
-  long timeDiff = currentTime - previousTime;
-  float altitudeDiff = altitude - previousAltitude;
-  float velocity = 0;
+  processAltitudeData(previousAltitude, previousTime, previousVelocity);
   
-  // Calculate velocity if previous time is available
-  if (previousTime != 0) {
-    velocity = altitudeDiff / (timeDiff / 1000.0); // Velocity in meters per second
-  }
-  
-  // Print altitude and velocity data
-  Serial.print("Altitude = ");
-  Serial.print(altitude);
-  Serial.print(" m, Velocity = ");
-  Serial.print(velocity);
-  Serial.print(" m/s, ");
-  
-  // Determine and print rocket state
-  if (previousTime != 0) {
-    if (velocity > 0) {
-      Serial.println("Rising");
-    } else if (velocity < 0) {
-       Serial.println("Falling");
-    } else {
-      Serial.println("Apogee or Stationary");
-    }
-  
-    // Apogee detection: Check for velocity sign change
-    if (previousVelocity > 0 && velocity < 0) {
-      Serial.println("Approaching Apogee"); // Add an approaching apogee message
-    }
-  
-  } else {
-    Serial.println("Initializing");
-  }
-  
-  // Update previous altitude, time, and velocity for next iteration
-  previousAltitude = altitude;
-  previousTime = currentTime;
-  previousVelocity = velocity;
   
   // Delay for a short period (adjust as needed for sampling rate)
   delay(100);
-
+// This section is the rest of the code from the BMP390 Datasheet
   Serial.print("Temperature = ");
     Serial.print(bmp.temperature);
     Serial.println(" *C");
@@ -101,7 +59,6 @@ void loop() {
     Serial.println();
     delay(2000);
     
-  // put your main code here, to run repeatedly:
+
 }
 
-// put function definitions here:
