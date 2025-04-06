@@ -10,9 +10,10 @@
 #include <Arduino.h>
 TEST(DummyTest, BasicAssertions) {
     // You can use any assertion macros here
-    double intial_alt=1;
+    double initial_alt=1;
     bool result = check_apogee(initial_alt);
     EXPECT_FALSE(result); // "Apogee should not be reached at initial altitude.";
+}
 void setup()
 {
     // should be the same value as for the `test_speed` option in "platformio.ini"
